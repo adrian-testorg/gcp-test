@@ -50,5 +50,5 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ github.event.pull_request.head.sha || github.sha }}
+        tags: ghcr.io/popular-repos:${{ github.event.pull_request.head.sha || github.sha }}
 
