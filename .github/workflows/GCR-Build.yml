@@ -60,7 +60,7 @@ jobs:
       name: Dev
     needs: build
     steps:
-    - run: ls -all
+    - uses: actions/checkout@v2
     - id: deploy
       uses: google-github-actions/deploy-appengine@main
       with:
