@@ -66,5 +66,5 @@ jobs:
       with:
         credentials: ${{ secrets.GCR_DEVOPS_SERVICE_ACCOUNT_KEY }}
         image_url: asia.gcr.io/${{ secrets.PROJECT_ID }}/cool-repo:${{ github.event.pull_request.head.sha || github.sha }}
-        deliverables: ./app.yaml
+        deliverables: config/app.yaml
         
