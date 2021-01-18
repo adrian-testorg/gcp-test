@@ -1,0 +1,54 @@
+name: Deploy Site
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup node 12
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: '12.x'
+
+    - name: Cache node modules
+      id: cache-node
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      if: steps.cache-node.outputs.cache-hit != 'true'
+      run: |
+        npm install --silent
+
+    - name: Build site
+      run:  npm run build
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+
+    - name: Login to Container Registry
+      uses: docker/login-action@v1 
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GHCR_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ghcr.io/adrian-testorg/cool-repo:${{ github.event.pull_request.head.sha || github.sha }}
+
