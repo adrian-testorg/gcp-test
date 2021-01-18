@@ -52,3 +52,18 @@ jobs:
         push: true
         tags: asia.gcr.io/${{ secrets.PROJECT_ID }}/cool-repo:${{ github.event.pull_request.head.sha || github.sha }}
 
+  deploy_to_dev:
+    name: Deploy Dev
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment: 
+      name: Dev
+    needs: build
+    steps:
+
+    - id: deploy
+      uses: google-github-actions/deploy-appengine@main
+      with:
+        credentials: ${{ secrets.GCR_DEVOPS_SERVICE_ACCOUNT_KEY }}
+        image_url: asia.gcr.io/${{ secrets.PROJECT_ID }}/cool-repo:${{ github.event.pull_request.head.sha || github.sha }}
+        
