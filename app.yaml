@@ -1,2 +1,2 @@
-runtime: custom
+runtime: nodejs12
 env: flex

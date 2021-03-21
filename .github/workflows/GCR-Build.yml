@@ -4,7 +4,13 @@ on:
   pull_request:
     branches:
       - main
-
+      - dev/*
+      - feature/*
+      
+  push:
+    branches:
+      - main
+      - Staging
 jobs:
   build:
     name: Build
@@ -58,10 +64,26 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: Dev
+      url: ${{ steps.popular-repos-web.outputs.webapp-url }}
     needs: build
     steps:
     - uses: actions/checkout@v2
-    - id: deploy
+    - id: popular-repos-web
+      uses: google-github-actions/deploy-appengine@main
+      with:
+        credentials: ${{ secrets.GCR_DEVOPS_SERVICE_ACCOUNT_KEY }}
+        image_url: asia.gcr.io/${{ secrets.PROJECT_ID }}/cool-repo:${{ github.event.pull_request.head.sha || github.sha }}
+      
+  deploy_to_staging:
+    name: Deploy Staging
+    if: github.event.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    environment: 
+      name: staging
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+    - id: popular-repos-web
       uses: google-github-actions/deploy-appengine@main
       with:
         credentials: ${{ secrets.GCR_DEVOPS_SERVICE_ACCOUNT_KEY }}
